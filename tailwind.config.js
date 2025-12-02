@@ -21,6 +21,12 @@ module.exports = {
         padding: "padding-top padding-right padding-bottom padding-left",
       },
       colors: {
+        brand: {
+          primary: "#FAF9F6",      // Off-white
+          secondary: "#FFB6C1",    // Pink
+          accent: "#A67B5B",       // Cappuccino
+          "accent-dark": "#8B7355", // Darker cappuccino
+        },
         grey: {
           0: "#FFFFFF",
           5: "#F9FAFB",

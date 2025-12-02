@@ -3,31 +3,36 @@ import { Button, Heading } from "@medusajs/ui"
 
 const Hero = () => {
   return (
-    <div className="h-[75vh] w-full border-b border-ui-border-base relative bg-ui-bg-subtle">
+    <div 
+      className="h-[75vh] w-full border-b border-brand-accent/20 relative bg-cover bg-center"
+      style={{
+        backgroundImage: "url('https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?q=80&w=2070&auto=format&fit=crop')",
+      }}
+    >
+      {/* Dark overlay for text readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60"></div>
+      
       <div className="absolute inset-0 z-10 flex flex-col justify-center items-center text-center small:p-32 gap-6">
         <span>
           <Heading
             level="h1"
-            className="text-3xl leading-10 text-ui-fg-base font-normal"
+            className="text-5xl leading-tight text-white font-bold drop-shadow-lg"
           >
-            Ecommerce Starter Template
+            Elevate Your Style
           </Heading>
           <Heading
             level="h2"
-            className="text-3xl leading-10 text-ui-fg-subtle font-normal"
+            className="text-2xl leading-10 text-brand-primary font-light mt-4"
           >
-            Powered by Medusa and Next.js
+            Discover Premium Fashion & Lifestyle
           </Heading>
         </span>
-        <a
-          href="https://github.com/medusajs/nextjs-starter-medusa"
-          target="_blank"
+        <Button 
+          variant="secondary"
+          className="mt-4 bg-brand-secondary hover:bg-brand-accent text-white border-none text-lg px-8 py-6"
         >
-          <Button variant="secondary">
-            View on GitHub
-            <Github />
-          </Button>
-        </a>
+          Shop Collection
+        </Button>
       </div>
     </div>
   )
