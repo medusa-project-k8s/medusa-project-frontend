@@ -1,13 +1,11 @@
 "use client"
 
 import { Popover, PopoverPanel, Transition } from "@headlessui/react"
-import { ArrowRightMini, XMark } from "@medusajs/icons"
-import { Text, clx, useToggleState } from "@medusajs/ui"
+import { XMark } from "@medusajs/icons"
+import { Text } from "@medusajs/ui"
 import { Fragment } from "react"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import CountrySelect from "../country-select"
-import { HttpTypes } from "@medusajs/types"
 
 const SideMenuItems = {
   Home: "/",
@@ -16,8 +14,7 @@ const SideMenuItems = {
   Cart: "/cart",
 }
 
-const SideMenu = ({ regions }: { regions: HttpTypes.StoreRegion[] | null }) => {
-  const toggleState = useToggleState()
+const SideMenu = () => {
 
   return (
     <div className="h-full">
@@ -28,101 +25,79 @@ const SideMenu = ({ regions }: { regions: HttpTypes.StoreRegion[] | null }) => {
               <div className="relative flex h-full">
                 <Popover.Button
                   data-testid="nav-menu-button"
-                  className="relative h-full flex items-center text-brand-accent-dark uppercase text-sm transition-all ease-out duration-200 focus:outline-none hover:opacity-70"
+                  className="relative h-full flex items-center text-brand-accent-dark uppercase transition-all ease-out duration-200 focus:outline-none hover:opacity-70"
                 >
                   Menu
                 </Popover.Button>
               </div>
 
               {open && (
-                <div
-                  className="fixed inset-0 z-[50] bg-brand-accent-dark/20 pointer-events-auto"
-                  onClick={close}
-                  data-testid="side-menu-backdrop"
-                />
+                <>
+                  {/* Fullscreen background image */}
+                  <div 
+                    className="fixed inset-0 bg-cover bg-center z-[49]"
+                    style={{
+                      backgroundImage: "url('/menu-bg.jpg')",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
+                    }}
+                  />
+                  {/* Backdrop overlay */}
+                  <div
+                    className="fixed inset-0 z-[50] bg-brand-accent-dark/20 pointer-events-auto"
+                    onClick={close}
+                    data-testid="side-menu-backdrop"
+                  />
+                </>
               )}
 
               <Transition
                 show={open}
                 as={Fragment}
-                enter="transition ease-out duration-200"
-                enterFrom="opacity-0 -translate-x-full"
-                enterTo="opacity-100 translate-x-0"
-                leave="transition ease-in duration-150"
-                leaveFrom="opacity-100 translate-x-0"
-                leaveTo="opacity-0 -translate-x-full"
+                enter="transition ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="transition ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
               >
-                <PopoverPanel 
-                  className="fixed left-0 top-0 bottom-0 w-full sm:w-80 z-[51] shadow-lg"
-                  style={{
-                    backgroundImage: "url('/menu-bg.jpg')",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    backgroundRepeat: "no-repeat",
-                  }}
-                >
-                  <div className="relative h-full w-full bg-brand-primary/60">
-                    <div
-                      data-testid="nav-menu-popup"
-                      className="flex flex-col h-full relative z-10"
-                    >
-                    {/* Header with close button */}
-                    <div className="flex justify-between items-center p-6 border-b border-brand-accent/20">
-                      <span className="text-sm uppercase tracking-wide text-brand-accent-dark font-semibold">Menu</span>
-                      <button 
-                        data-testid="close-menu-button" 
-                        onClick={close}
-                        className="text-brand-accent-dark hover:opacity-70 transition-opacity"
-                      >
-                        <XMark className="w-5 h-5" />
-                      </button>
-                    </div>
+                <PopoverPanel className="fixed inset-0 flex flex-col items-center justify-center z-[51]">
+                  {/* Close button */}
+                  <button 
+                    data-testid="close-menu-button" 
+                    onClick={close}
+                    className="absolute top-6 right-6 text-white hover:opacity-70 transition-opacity z-10"
+                  >
+                    <XMark className="w-6 h-6" />
+                  </button>
 
-                    {/* Menu items */}
-                    <div className="flex-1 overflow-y-auto p-6">
-                      <ul className="flex flex-col gap-6">
-                        {Object.entries(SideMenuItems).map(([name, href]) => {
-                          return (
-                            <li key={name}>
-                              <LocalizedClientLink
-                                href={href}
-                                className="text-2xl md:text-3xl text-brand-accent-dark hover:text-brand-accent transition-colors uppercase tracking-wide"
-                                onClick={close}
-                                data-testid={`${name.toLowerCase()}-link`}
-                              >
-                                {name}
-                              </LocalizedClientLink>
-                            </li>
-                          )
-                        })}
-                      </ul>
-                    </div>
+                  <div
+                    data-testid="nav-menu-popup"
+                    className="flex flex-col items-center justify-center relative z-10"
+                  >
+                    {/* Menu items - centered */}
+                    <ul className="flex flex-col items-center justify-center gap-8 mb-12">
+                      {Object.entries(SideMenuItems).map(([name, href]) => {
+                        return (
+                          <li key={name} className="text-center">
+                            <LocalizedClientLink
+                              href={href}
+                              className="text-3xl md:text-4xl text-white hover:opacity-80 transition-all duration-300 uppercase tracking-wider font-light"
+                              onClick={close}
+                              data-testid={`${name.toLowerCase()}-link`}
+                            >
+                              {name}
+                            </LocalizedClientLink>
+                          </li>
+                        )
+                      })}
+                    </ul>
 
-                    {/* Footer */}
-                    <div className="border-t border-brand-accent/20 p-6 space-y-4">
-                      <div
-                        className="flex justify-between items-center"
-                        onMouseEnter={toggleState.open}
-                        onMouseLeave={toggleState.close}
-                      >
-                        {regions && (
-                          <CountrySelect
-                            toggleState={toggleState}
-                            regions={regions}
-                          />
-                        )}
-                        <ArrowRightMini
-                          className={clx(
-                            "transition-transform duration-150 text-brand-accent-dark",
-                            toggleState.state ? "-rotate-90" : ""
-                          )}
-                        />
-                      </div>
-                      <Text className="text-xs text-brand-accent-dark">
-                        © {new Date().getFullYear()} Your Store. All rights reserved.
-                      </Text>
-                    </div>
-                  </div>
+                    {/* Footer - only copyright */}
+                    <Text className="text-xs text-white text-center">
+                      © {new Date().getFullYear()} Your Store. All rights reserved.
+                    </Text>
                   </div>
                 </PopoverPanel>
               </Transition>

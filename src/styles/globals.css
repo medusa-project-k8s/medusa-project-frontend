@@ -1,3 +1,13 @@
+@font-face {
+  font-family: 'Catchy Mager';
+  src: url('/fonts/CatchyMager-Regular.woff2') format('woff2'),
+       url('/fonts/CatchyMager-Regular.woff') format('woff'),
+       url('/fonts/CatchyMager-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
@@ -46,6 +56,12 @@
   input[type="search"]::-webkit-search-results-button,
   input[type="search"]::-webkit-search-results-decoration {
     -webkit-appearance: none;
+  }
+}
+
+@layer base {
+  * {
+    font-family: 'Catchy Mager', serif;
   }
 }
 

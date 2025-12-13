@@ -1,6 +1,6 @@
 "use client"
 
-import { Button, Heading } from "@medusajs/ui"
+import { Heading } from "@medusajs/ui"
 import { useEffect, useState } from "react"
 
 const Hero = () => {
@@ -25,7 +25,7 @@ const Hero = () => {
   }, [backgroundImages.length])
 
   return (
-    <div className="h-[75vh] w-full border-b border-brand-accent/20 relative overflow-hidden">
+    <div className="h-screen w-full border-b border-brand-accent/20 relative overflow-hidden">
       {/* Background images with fade transition */}
       {backgroundImages.map((image, index) => (
         <div
@@ -55,12 +55,9 @@ const Hero = () => {
             Discover Premium Fashion & Lifestyle
           </Heading>
         </span>
-        <Button 
-          variant="secondary"
-          className="mt-4 bg-brand-accent-dark hover:bg-brand-accent text-white border-none text-lg px-8 py-6"
-        >
-          Shop Collection
-        </Button>
+        <div className="mt-4 text-white text-2xl font-light tracking-wide">
+          Persephone brand
+        </div>
       </div>
 
       {/* Image indicators (dots) */}
