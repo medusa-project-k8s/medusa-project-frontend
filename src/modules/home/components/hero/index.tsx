@@ -1,17 +1,45 @@
-import { Github } from "@medusajs/icons"
+"use client"
+
 import { Button, Heading } from "@medusajs/ui"
+import { useEffect, useState } from "react"
 
 const Hero = () => {
+  // Add your background images here - add as many as you want!
+  const backgroundImages = [
+    "/hero-bg.jpg",
+    "/hero-bg-2.jpg", // Add more images: hero-bg-2.jpg, hero-bg-3.jpg, etc.
+    "/hero-bg-3.jpg",
+  ]
+
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  // Auto-rotate images every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === backgroundImages.length - 1 ? 0 : prevIndex + 1
+      )
+    }, 5000) // Change image every 5 seconds
+
+    return () => clearInterval(interval)
+  }, [backgroundImages.length])
+
   return (
-    <div 
-      className="h-[75vh] w-full border-b border-brand-accent/20 relative bg-cover bg-center"
-      style={{
-        backgroundImage: "url('https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?q=80&w=2070&auto=format&fit=crop')",
-      }}
-    >
-      {/* Dark overlay for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60"></div>
+    <div className="h-[75vh] w-full border-b border-brand-accent/20 relative overflow-hidden">
+      {/* Background images with fade transition */}
+      {backgroundImages.map((image, index) => (
+        <div
+          key={index}
+          className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out"
+          style={{
+            backgroundImage: `url('${image}')`,
+            opacity: index === currentImageIndex ? 1 : 0,
+            zIndex: index === currentImageIndex ? 1 : 0,
+          }}
+        />
+      ))}
       
+      {/* Content overlay */}
       <div className="absolute inset-0 z-10 flex flex-col justify-center items-center text-center small:p-32 gap-6">
         <span>
           <Heading
@@ -22,18 +50,36 @@ const Hero = () => {
           </Heading>
           <Heading
             level="h2"
-            className="text-2xl leading-10 text-brand-primary font-light mt-4"
+            className="text-2xl leading-10 text-white font-light mt-4 drop-shadow-md"
           >
             Discover Premium Fashion & Lifestyle
           </Heading>
         </span>
         <Button 
           variant="secondary"
-          className="mt-4 bg-brand-secondary hover:bg-brand-accent text-white border-none text-lg px-8 py-6"
+          className="mt-4 bg-black hover:bg-black/90 text-white border-none text-lg px-8 py-6"
         >
           Shop Collection
         </Button>
       </div>
+
+      {/* Image indicators (dots) */}
+      {backgroundImages.length > 1 && (
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
+          {backgroundImages.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentImageIndex(index)}
+              className={`h-2 rounded-full transition-all ${
+                index === currentImageIndex
+                  ? "w-8 bg-white"
+                  : "w-2 bg-white/50 hover:bg-white/75"
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
