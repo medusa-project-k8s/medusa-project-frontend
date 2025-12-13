@@ -57,7 +57,7 @@ const Hero = () => {
         </span>
         <Button 
           variant="secondary"
-          className="mt-4 bg-black hover:bg-black/90 text-white border-none text-lg px-8 py-6"
+          className="mt-4 bg-brand-accent-dark hover:bg-brand-accent text-white border-none text-lg px-8 py-6"
         >
           Shop Collection
         </Button>
