@@ -27,7 +27,7 @@ export default async function Nav() {
               data-testid="nav-store-link"
             >
               <div className="text-2xl font-bold text-brand-accent-dark tracking-wide">
-                YOUR STORE
+                PERSEPHONE BRAND
               </div>
             </LocalizedClientLink>
           </div>

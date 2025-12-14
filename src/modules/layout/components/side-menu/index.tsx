@@ -1,9 +1,8 @@
 "use client"
 
-import { Popover, PopoverPanel, Transition } from "@headlessui/react"
+import { Popover, PopoverPanel } from "@headlessui/react"
 import { XMark } from "@medusajs/icons"
 import { Text } from "@medusajs/ui"
-import { Fragment } from "react"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
@@ -52,17 +51,8 @@ const SideMenu = () => {
                 </>
               )}
 
-              <Transition
-                show={open}
-                as={Fragment}
-                enter="transition ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="transition ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <PopoverPanel className="fixed inset-0 flex flex-col items-center justify-center z-[51]">
+              {open && (
+                <PopoverPanel static className="fixed inset-0 flex flex-col items-center justify-center z-[51]">
                   {/* Close button */}
                   <button 
                     data-testid="close-menu-button" 
@@ -96,11 +86,11 @@ const SideMenu = () => {
 
                     {/* Footer - only copyright */}
                     <Text className="text-xs text-white text-center">
-                      © {new Date().getFullYear()} Your Store. All rights reserved.
+                      © {new Date().getFullYear()} Persephone brand. All rights reserved.
                     </Text>
                   </div>
                 </PopoverPanel>
-              </Transition>
+              )}
             </>
           )}
         </Popover>

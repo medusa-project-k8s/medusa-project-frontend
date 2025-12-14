@@ -20,7 +20,7 @@ export default async function Footer() {
               href="/"
               className="text-2xl font-bold text-brand-accent-dark hover:text-brand-accent transition-colors"
             >
-              YOUR STORE
+              PERSEPHONE BRAND
             </LocalizedClientLink>
           </div>
           <div className="text-small-regular gap-10 md:gap-x-16 grid grid-cols-2 sm:grid-cols-3">
@@ -141,7 +141,7 @@ export default async function Footer() {
         </div>
         <div className="flex w-full mb-16 justify-between text-brand-accent">
           <Text className="txt-compact-small">
-            © {new Date().getFullYear()} Your Store. All rights reserved.
+            © {new Date().getFullYear()} Persephone brand. All rights reserved.
           </Text>
           <Text className="txt-compact-small">
             Made with ❤️ for fashion lovers

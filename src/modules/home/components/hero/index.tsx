@@ -1,6 +1,5 @@
 "use client"
 
-import { Heading } from "@medusajs/ui"
 import { useEffect, useState } from "react"
 
 const Hero = () => {
@@ -40,24 +39,10 @@ const Hero = () => {
       ))}
       
       {/* Content overlay */}
-      <div className="absolute inset-0 z-10 flex flex-col justify-center items-center text-center small:p-32 gap-6">
-        <span>
-          <Heading
-            level="h1"
-            className="text-5xl leading-tight text-white font-bold drop-shadow-lg"
-          >
-            Elevate Your Style
-          </Heading>
-          <Heading
-            level="h2"
-            className="text-2xl leading-10 text-white font-light mt-4 drop-shadow-md"
-          >
-            Discover Premium Fashion & Lifestyle
-          </Heading>
-        </span>
-        <div className="mt-4 text-white text-2xl font-light tracking-wide">
+      <div className="absolute inset-0 z-10 flex flex-col justify-center items-center text-center small:p-32">
+        <h1 className="text-6xl small:text-8xl md:text-9xl text-white font-normal tracking-widest leading-none drop-shadow-lg">
           Persephone brand
-        </div>
+        </h1>
       </div>
 
       {/* Image indicators (dots) */}
