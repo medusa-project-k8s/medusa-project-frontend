@@ -82,7 +82,7 @@ const CartDropdown = ({
       <Popover className="relative h-full">
         <PopoverButton className="h-full">
           <LocalizedClientLink
-            className="text-brand-accent-dark hover:text-brand-accent transition-colors uppercase text-xl font-bold tracking-wide"
+            className="text-brand-accent-dark hover:text-brand-accent transition-colors text-xl font-bold tracking-wide"
             href="/cart"
             data-testid="nav-cart-link"
           >{`Cart (${totalItems})`}</LocalizedClientLink>
@@ -103,7 +103,7 @@ const CartDropdown = ({
             data-testid="nav-cart-dropdown"
           >
             <div className="p-4 flex items-center justify-center border-b border-brand-accent/20">
-              <h3 className="text-large-semi text-brand-accent-dark uppercase tracking-wide">Cart</h3>
+              <h3 className="text-large-semi text-brand-accent-dark tracking-wide">Cart</h3>
             </div>
             {cartState && cartState.items?.length ? (
               <>
