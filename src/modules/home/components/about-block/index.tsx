@@ -4,9 +4,9 @@ const AboutBlock = () => {
   return (
     <div className="w-full bg-brand-primary border-b border-brand-accent/20 pt-16 small:pt-24">
       <div className="content-container pb-16 small:pb-24">
-        <div className="grid grid-cols-1 small:grid-cols-2 gap-8 small:gap-12 items-center">
+        <div className="grid grid-cols-1 small:grid-cols-2 gap-8 small:gap-12 items-stretch">
           {/* Left side - Image */}
-          <div className="relative w-full aspect-[4/5] small:aspect-square">
+          <div className="relative w-full aspect-[3/4] small:aspect-[2/3]">
             <Image
               src="/about-image.jpg"
               alt="About"
@@ -18,7 +18,7 @@ const AboutBlock = () => {
           </div>
 
           {/* Right side - Text */}
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-6 justify-center text-center">
             <h2 className="text-4xl small:text-5xl font-normal text-brand-accent-dark tracking-wide leading-tight">
               PERSEPHONE
             </h2>
