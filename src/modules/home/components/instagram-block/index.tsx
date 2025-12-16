@@ -6,7 +6,7 @@ const InstagramBlock = () => {
       <div className="relative w-full h-[600px] small:h-[700px] overflow-hidden">
         {/* Background Image */}
         <Image
-          src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1920&q=80"
+          src="/instagram-bg.jpg"
           alt="Instagram"
           fill
           className="object-cover"
