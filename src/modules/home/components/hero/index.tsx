@@ -37,13 +37,6 @@ const Hero = () => {
           }}
         />
       ))}
-      
-      {/* Content overlay */}
-      <div className="absolute inset-0 z-10 flex flex-col justify-center items-center text-center small:p-32">
-        <h1 className="text-6xl small:text-8xl md:text-9xl text-white font-normal tracking-widest leading-none drop-shadow-lg">
-          Persephone brand
-        </h1>
-      </div>
 
       {/* Image indicators (dots) */}
       {backgroundImages.length > 1 && (
