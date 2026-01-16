@@ -1,23 +1,25 @@
-# Basic Dockerfile for Next.js Storefront
+# Simple Dockerfile for Next.js Storefront
 FROM node:20-alpine
 
-# Set working directory
 WORKDIR /app
 
 # Copy package files
-COPY package.json yarn.lock* package-lock.json* ./
+COPY package.json package-lock.json* ./
 
 # Install dependencies
-RUN yarn install --frozen-lockfile
+RUN npm install --frozen-lockfile
 
 # Copy source code
 COPY . .
 
-# Build the application
-RUN yarn build
+# Set dummy env var for build (override at runtime in K8s)
+ENV NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=dummy-build-key
 
-# Expose the port Next.js runs on
+# Build the application
+RUN npm run build
+
+# Expose port
 EXPOSE 8000
 
-# Start the application
-CMD ["yarn", "start"]
+# Start production server
+CMD ["npm", "start"]
