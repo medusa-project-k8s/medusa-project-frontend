@@ -4,6 +4,11 @@
 #   NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY  - Publishable API key (e.g. pk_...)
 #   MEDUSA_BACKEND_URL                  - Backend API URL (e.g. https://api.example.com)
 #     Optional: if not set, set MEDUSA_BACKEND_URL at runtime (e.g. docker run -e or K8s).
+#
+# Pushed to: GitHub Container Registry (ghcr.io)
+#   Image: ghcr.io/<owner>/<repo>:latest  and  ghcr.io/<owner>/<repo>:<commit-sha>
+#   e.g.  ghcr.io/medusa-project-k8s/medusa-project-frontend:latest
+#   View/pull: GitHub repo → Packages (right sidebar), or docker pull ghcr.io/owner/repo:latest
 
 name: Build storefront
 
