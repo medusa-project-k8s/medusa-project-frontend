@@ -15,11 +15,8 @@ RUN npm install --frozen-lockfile
 COPY . .
 
 # Next.js inlines NEXT_PUBLIC_* at build time. Pass at build: --build-arg NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_...
-# Optional: MEDUSA_BACKEND_URL for store API (also inlined if used in client).
 ARG NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
-ARG NEXT_PUBLIC_MEDUSA_BACKEND_URL
 ENV NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=$NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
-ENV NEXT_PUBLIC_MEDUSA_BACKEND_URL=$NEXT_PUBLIC_MEDUSA_BACKEND_URL
 
 RUN npm run build
 
@@ -32,6 +29,11 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+# Optional: pass at build via --build-arg MEDUSA_BACKEND_URL=... (e.g. from GitHub Secrets)
+# Otherwise set at runtime (e.g. docker run -e MEDUSA_BACKEND_URL=... or K8s secret).
+ARG MEDUSA_BACKEND_URL
+ENV MEDUSA_BACKEND_URL=$MEDUSA_BACKEND_URL
+
 COPY package.json package-lock.json* ./
 RUN npm install --omit=dev --frozen-lockfile
 
@@ -40,5 +42,4 @@ COPY --from=builder /app/public ./public
 
 EXPOSE 8000
 
-# Do not set NEXT_PUBLIC_* here so K8s env (from secretKeyRef) is used for server-side process.env
 CMD ["npm", "start"]
