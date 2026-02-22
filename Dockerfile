@@ -1,4 +1,6 @@
-# Simple multi-stage Dockerfile for Next.js Storefront
+# Multi-stage Dockerfile for Next.js Storefront
+# NEXT_PUBLIC_* are inlined at build time; pass real key via --build-arg when building.
+# K8s secret can still be set for runtime (server-side reads process.env).
 
 ########################
 # 1) Build stage
@@ -7,19 +9,18 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
 COPY package.json package-lock.json* ./
-
-# Install all dependencies (prod + dev) for build
 RUN npm install --frozen-lockfile
 
-# Copy source code
 COPY . .
 
-# Set dummy env var for build (override at runtime in K8s)
-ENV NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=dummy-build-key
+# Next.js inlines NEXT_PUBLIC_* at build time. Pass at build: --build-arg NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_...
+# Optional: MEDUSA_BACKEND_URL for store API (also inlined if used in client).
+ARG NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+ARG NEXT_PUBLIC_MEDUSA_BACKEND_URL
+ENV NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=$NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+ENV NEXT_PUBLIC_MEDUSA_BACKEND_URL=$NEXT_PUBLIC_MEDUSA_BACKEND_URL
 
-# Build the application
 RUN npm run build
 
 ########################
@@ -31,17 +32,13 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy only package files and install prod dependencies
 COPY package.json package-lock.json* ./
 RUN npm install --omit=dev --frozen-lockfile
 
-# Copy built assets from builder
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 
-# Expose port
 EXPOSE 8000
 
-# Start production server
+# Do not set NEXT_PUBLIC_* here so K8s env (from secretKeyRef) is used for server-side process.env
 CMD ["npm", "start"]
-
