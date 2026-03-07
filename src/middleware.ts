@@ -13,6 +13,13 @@ const regionMapCache = {
 async function getRegionMap(cacheId: string) {
   const { regionMap, regionMapUpdated } = regionMapCache
 
+  // Edge middleware only sees env inlined at build time. K8s runtime env is NOT available here.
+  if (!PUBLISHABLE_API_KEY) {
+    throw new Error(
+      "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY is missing in the Edge middleware. Pass it at Docker build time: --build-arg NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_..."
+    )
+  }
+
   if (!BACKEND_URL) {
     throw new Error(
       "Middleware.ts: Error fetching regions. Did you set up regions in your Medusa Admin and define a MEDUSA_BACKEND_URL environment variable? Note that the variable is no longer named NEXT_PUBLIC_MEDUSA_BACKEND_URL."
@@ -101,9 +108,45 @@ async function getCountryCode(
 }
 
 /**
+ * Debug: hit /?__middleware_debug=1 to see what Edge middleware sees and what the backend returns.
+ * Remove or guard with NODE_ENV once done.
+ */
+async function debugMiddleware(request: NextRequest) {
+  const url = `${BACKEND_URL}/store/regions`
+  let fetchStatus: number | null = null
+  let fetchMessage: string | null = null
+  try {
+    const res = await fetch(url, {
+      headers: { "x-publishable-api-key": (PUBLISHABLE_API_KEY ?? "") || "" },
+    })
+    fetchStatus = res.status
+    const json = await res.json().catch(() => ({}))
+    fetchMessage = (json as { message?: string }).message ?? res.statusText
+  } catch (e) {
+    fetchMessage = e instanceof Error ? e.message : String(e)
+  }
+  return NextResponse.json(
+    {
+      keyPresent: !!PUBLISHABLE_API_KEY,
+      keyPrefix: PUBLISHABLE_API_KEY ? `${PUBLISHABLE_API_KEY.slice(0, 20)}...` : null,
+      keyLength: PUBLISHABLE_API_KEY ? PUBLISHABLE_API_KEY.length : 0,
+      backendUrlPresent: !!BACKEND_URL,
+      backendUrl: BACKEND_URL ? `${BACKEND_URL.slice(0, 50)}...` : null,
+      fetchStatus,
+      fetchMessage,
+    },
+    { status: 200 }
+  )
+}
+
+/**
  * Middleware to handle region selection and onboarding status.
  */
 export async function middleware(request: NextRequest) {
+  if (request.nextUrl.searchParams.get("__middleware_debug") === "1") {
+    return debugMiddleware(request)
+  }
+
   let redirectUrl = request.nextUrl.href
 
   let response = NextResponse.redirect(redirectUrl, 307)
@@ -112,7 +155,20 @@ export async function middleware(request: NextRequest) {
 
   let cacheId = cacheIdCookie?.value || crypto.randomUUID()
 
-  const regionMap = await getRegionMap(cacheId)
+  let regionMap
+  try {
+    regionMap = await getRegionMap(cacheId)
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    return new NextResponse(
+      JSON.stringify({
+        error: "getRegionMap failed",
+        message: msg,
+        keyPresent: !!PUBLISHABLE_API_KEY,
+      }),
+      { status: 502, headers: { "Content-Type": "application/json" } }
+    )
+  }
 
   const countryCode = regionMap && (await getCountryCode(request, regionMap))
 
