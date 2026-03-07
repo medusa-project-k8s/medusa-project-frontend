@@ -9,6 +9,17 @@ const S3_HOSTNAME = process.env.MEDUSA_CLOUD_S3_HOSTNAME
 const S3_PATHNAME = process.env.MEDUSA_CLOUD_S3_PATHNAME
 
 /**
+ * Backend host for product images (set at build via NEXT_PUBLIC_MEDUSA_BACKEND_URL).
+ * Must be in remotePatterns or use unoptimized so next/image can load backend image URLs.
+ */
+let backendImageHost = "localhost"
+if (process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL) {
+  try {
+    backendImageHost = new URL(process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL).hostname
+  } catch (_) {}
+}
+
+/**
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
@@ -30,6 +41,8 @@ const nextConfig = {
         protocol: "http",
         hostname: "localhost",
       },
+      { protocol: "http", hostname: backendImageHost },
+      { protocol: "https", hostname: backendImageHost },
       {
         protocol: "https",
         hostname: "medusa-public-images.s3.eu-west-1.amazonaws.com",
