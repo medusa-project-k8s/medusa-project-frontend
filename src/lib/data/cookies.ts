@@ -78,6 +78,7 @@ export const setCartId = async (cartId: string) => {
     httpOnly: true,
     sameSite: "strict",
     secure: process.env.NODE_ENV === "production",
+    path: "/",
   })
 }
 
