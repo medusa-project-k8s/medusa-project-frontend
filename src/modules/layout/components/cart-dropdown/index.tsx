@@ -84,6 +84,7 @@ const CartDropdown = ({
           <LocalizedClientLink
             className="text-brand-accent-dark hover:text-brand-accent transition-colors text-xl font-bold tracking-wide"
             href="/cart"
+            prefetch={false}
             data-testid="nav-cart-link"
           >{`Cart (${totalItems})`}</LocalizedClientLink>
         </PopoverButton>
@@ -191,7 +192,7 @@ const CartDropdown = ({
                       })}
                     </span>
                   </div>
-                  <LocalizedClientLink href="/cart" passHref>
+                  <LocalizedClientLink href="/cart" passHref prefetch={false}>
                     <Button
                       className="w-full bg-brand-accent-dark hover:bg-brand-accent text-white"
                       size="large"

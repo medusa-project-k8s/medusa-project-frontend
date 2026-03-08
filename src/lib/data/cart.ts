@@ -3,7 +3,7 @@
 import { sdk } from "@lib/config"
 import medusaError from "@lib/util/medusa-error"
 import { HttpTypes } from "@medusajs/types"
-import { revalidateTag } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import { redirect } from "next/navigation"
 import {
   getAuthHeaders,
@@ -75,6 +75,7 @@ export async function getOrSetCart(countryCode: string) {
 
     const cartCacheTag = await getCacheTag("carts")
     revalidateTag(cartCacheTag)
+    revalidatePath(`/${countryCode}/cart`)
   }
 
   if (cart && cart?.region_id !== region.id) {
@@ -150,6 +151,8 @@ export async function addToCart({
 
       const fulfillmentCacheTag = await getCacheTag("fulfillment")
       revalidateTag(fulfillmentCacheTag)
+
+      revalidatePath(`/${countryCode}/cart`)
     })
     .catch(medusaError)
 }

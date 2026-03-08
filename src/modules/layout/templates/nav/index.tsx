@@ -47,6 +47,7 @@ export default async function Nav() {
                 <LocalizedClientLink
                   className="hover:text-brand-accent transition-colors flex gap-2 text-xl font-bold tracking-wide"
                   href="/cart"
+                  prefetch={false}
                   data-testid="nav-cart-link"
                 >
                   Cart (0)

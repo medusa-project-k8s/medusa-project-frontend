@@ -73,6 +73,7 @@ const SideMenu = () => {
                           <li key={name} className="text-center">
                             <LocalizedClientLink
                               href={href}
+                              prefetch={href === "/cart" ? false : undefined}
                               className="text-3xl md:text-4xl text-white hover:opacity-80 transition-all duration-300 uppercase tracking-wider font-light"
                               onClick={close}
                               data-testid={`${name.toLowerCase()}-link`}
