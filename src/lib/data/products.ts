@@ -51,6 +51,8 @@ export const listProducts = async ({
 
   const next = {
     ...(await getCacheOptions("products")),
+    // Revalidate every 60s so new products appear without restarting the pod
+    revalidate: 60,
   }
 
   return sdk.client
