@@ -1,6 +1,6 @@
 "use server"
 
-import { sdk } from "@lib/config"
+import { PUBLISHABLE_KEY, sdk } from "@lib/config"
 import medusaError from "@lib/util/medusa-error"
 import { HttpTypes } from "@medusajs/types"
 import { getCacheOptions } from "./cookies"
@@ -13,6 +13,9 @@ export const listRegions = async () => {
   return sdk.client
     .fetch<{ regions: HttpTypes.StoreRegion[] }>(`/store/regions`, {
       method: "GET",
+      headers: PUBLISHABLE_KEY
+        ? { "x-publishable-api-key": PUBLISHABLE_KEY }
+        : undefined,
       next,
       cache: "force-cache",
     })
@@ -28,6 +31,9 @@ export const retrieveRegion = async (id: string) => {
   return sdk.client
     .fetch<{ region: HttpTypes.StoreRegion }>(`/store/regions/${id}`, {
       method: "GET",
+      headers: PUBLISHABLE_KEY
+        ? { "x-publishable-api-key": PUBLISHABLE_KEY }
+        : undefined,
       next,
       cache: "force-cache",
     })
