@@ -16,7 +16,9 @@ export default function medusaError(error: any): never {
     // The request was made but no response was received
     throw new Error("No response received: " + error.request)
   } else {
-    // Something happened in setting up the request that triggered an Error
-    throw new Error("Error setting up the request: " + error.message)
+    // SDK threw before HTTP response (or non-axios error)
+    const msg = error?.message ?? String(error)
+    const cause = error?.cause ? ` cause=${error.cause}` : ""
+    throw new Error(`Error setting up the request: ${msg}${cause}`)
   }
 }
