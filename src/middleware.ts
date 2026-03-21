@@ -1,9 +1,24 @@
 import { HttpTypes } from "@medusajs/types"
 import { NextRequest, NextResponse } from "next/server"
 
-// Prefer server-side backend URL, then public URL for client builds.
-const BACKEND_URL =
-  process.env.MEDUSA_BACKEND_URL || process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
+/** In-cluster Medusa (K8s); avoids relying on Traefik/DNS from inside the pod. */
+const K8S_DEFAULT_BACKEND =
+  "http://medusa-backend.medusa-store.svc.cluster.local:9000"
+
+/**
+ * Resolve at call time (not module load) so K8s-injected env is visible in Node middleware.
+ * Order: runtime server URL → public URL (build-time) → K8s default when running in-cluster.
+ */
+function getBackendUrl(): string {
+  return (
+    process.env.MEDUSA_BACKEND_URL?.trim() ||
+    process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL?.trim() ||
+    (typeof process.env.KUBERNETES_SERVICE_HOST === "string"
+      ? K8S_DEFAULT_BACKEND
+      : "")
+  )
+}
+
 const PUBLISHABLE_API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
 const DEFAULT_REGION = process.env.NEXT_PUBLIC_DEFAULT_REGION || "us"
 
@@ -12,19 +27,43 @@ const regionMapCache = {
   regionMapUpdated: Date.now(),
 }
 
-async function getRegionMap(cacheId: string) {
-  const { regionMap, regionMapUpdated } = regionMapCache
-
-  // Edge middleware only sees env inlined at build time. K8s runtime env is NOT available here.
-  if (!PUBLISHABLE_API_KEY) {
+async function fetchJsonFromMedusa<T>(path: string): Promise<T> {
+  const base = getBackendUrl()
+  if (!base) {
     throw new Error(
-      "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY is missing in the Edge middleware. Pass it at Docker build time: --build-arg NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_..."
+      "No backend URL: set MEDUSA_BACKEND_URL (K8s) or NEXT_PUBLIC_MEDUSA_BACKEND_URL (build)."
     )
   }
-
-  if (!BACKEND_URL) {
+  const url = `${base.replace(/\/$/, "")}${path.startsWith("/") ? path : `/${path}`}`
+  // Do NOT use next.revalidate / force-cache here — in middleware it can return wrong/stale data
+  // (including HTML) from Next's Data Cache.
+  const response = await fetch(url, {
+    headers: {
+      "x-publishable-api-key": PUBLISHABLE_API_KEY!,
+      Accept: "application/json",
+    },
+    cache: "no-store",
+  })
+  const contentType = response.headers.get("content-type") ?? ""
+  if (!contentType.includes("application/json")) {
+    const body = await response.text()
     throw new Error(
-      "Middleware: set NEXT_PUBLIC_MEDUSA_BACKEND_URL at build time (e.g. --build-arg NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://192.168.0.161/api)."
+      `Medusa returned non-JSON (${response.status}) for ${url}. Content-Type: ${contentType}. Body: ${body.slice(0, 200)}`
+    )
+  }
+  const json = (await response.json()) as T & { message?: string }
+  if (!response.ok) {
+    throw new Error(json.message ?? response.statusText)
+  }
+  return json
+}
+
+async function getRegionMap(_cacheId: string) {
+  const { regionMap, regionMapUpdated } = regionMapCache
+
+  if (!PUBLISHABLE_API_KEY) {
+    throw new Error(
+      "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY is missing. Pass at Docker build: --build-arg NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_..."
     )
   }
 
@@ -32,25 +71,9 @@ async function getRegionMap(cacheId: string) {
     !regionMap.keys().next().value ||
     regionMapUpdated < Date.now() - 3600 * 1000
   ) {
-    // Fetch regions from Medusa. We can't use the JS client here because middleware is running on Edge and the client needs a Node environment.
-    const { regions } = await fetch(`${BACKEND_URL}/store/regions`, {
-      headers: {
-        "x-publishable-api-key": PUBLISHABLE_API_KEY!,
-      },
-      next: {
-        revalidate: 3600,
-        tags: [`regions-${cacheId}`],
-      },
-      cache: "force-cache",
-    }).then(async (response) => {
-      const json = await response.json()
-
-      if (!response.ok) {
-        throw new Error(json.message)
-      }
-
-      return json
-    })
+    const { regions } = await fetchJsonFromMedusa<{ regions: HttpTypes.StoreRegion[] }>(
+      "/store/regions"
+    )
 
     if (!regions?.length) {
       throw new Error(
@@ -114,16 +137,26 @@ async function getCountryCode(
  * Remove or guard with NODE_ENV once done.
  */
 async function debugMiddleware(request: NextRequest) {
-  const url = `${BACKEND_URL}/store/regions`
+  const base = getBackendUrl()
+  const url = `${base.replace(/\/$/, "")}/store/regions`
   let fetchStatus: number | null = null
   let fetchMessage: string | null = null
   try {
     const res = await fetch(url, {
-      headers: { "x-publishable-api-key": (PUBLISHABLE_API_KEY ?? "") || "" },
+      headers: {
+        "x-publishable-api-key": (PUBLISHABLE_API_KEY ?? "") || "",
+        Accept: "application/json",
+      },
+      cache: "no-store",
     })
     fetchStatus = res.status
-    const json = await res.json().catch(() => ({}))
-    fetchMessage = (json as { message?: string }).message ?? res.statusText
+    const ct = res.headers.get("content-type") ?? ""
+    if (!ct.includes("application/json")) {
+      fetchMessage = `non-JSON: ${ct} ${(await res.text()).slice(0, 120)}`
+    } else {
+      const json = await res.json().catch(() => ({}))
+      fetchMessage = (json as { message?: string }).message ?? res.statusText
+    }
   } catch (e) {
     fetchMessage = e instanceof Error ? e.message : String(e)
   }
@@ -132,8 +165,8 @@ async function debugMiddleware(request: NextRequest) {
       keyPresent: !!PUBLISHABLE_API_KEY,
       keyPrefix: PUBLISHABLE_API_KEY ? `${PUBLISHABLE_API_KEY.slice(0, 20)}...` : null,
       keyLength: PUBLISHABLE_API_KEY ? PUBLISHABLE_API_KEY.length : 0,
-      backendUrlPresent: !!BACKEND_URL,
-      backendUrl: BACKEND_URL ? `${BACKEND_URL.slice(0, 50)}...` : null,
+      backendUrlResolved: base || null,
+      kubernetes: !!process.env.KUBERNETES_SERVICE_HOST,
       fetchStatus,
       fetchMessage,
     },
@@ -220,4 +253,6 @@ export const config = {
   matcher: [
     "/((?!api|_next/static|_next/image|favicon.ico|images|assets|png|svg|jpg|jpeg|gif|webp).*)",
   ],
+  // Node runtime: read MEDUSA_BACKEND_URL from the container (e.g. in-cluster Medusa URL).
+  runtime: "nodejs",
 }
