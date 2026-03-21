@@ -6,16 +6,23 @@ const K8S_DEFAULT_BACKEND =
   "http://medusa-backend.medusa-store.svc.cluster.local:9000"
 
 /**
- * Resolve at call time (not module load) so K8s-injected env is visible in Node middleware.
- * Order: runtime server URL → public URL (build-time) → K8s default when running in-cluster.
+ * Backend URL for middleware fetches (server-side only).
+ *
+ * In Kubernetes, do NOT use NEXT_PUBLIC_* here: it is inlined at build time (e.g.
+ * http://api.persephone.com) and may resolve via public DNS to the wrong host (404 HTML).
+ * Always talk to Medusa via cluster DNS when KUBERNETES_SERVICE_HOST is set.
  */
 function getBackendUrl(): string {
+  const inK8s = typeof process.env.KUBERNETES_SERVICE_HOST === "string"
+  if (inK8s) {
+    return (
+      process.env.MEDUSA_BACKEND_URL?.trim() || K8S_DEFAULT_BACKEND
+    )
+  }
   return (
     process.env.MEDUSA_BACKEND_URL?.trim() ||
     process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL?.trim() ||
-    (typeof process.env.KUBERNETES_SERVICE_HOST === "string"
-      ? K8S_DEFAULT_BACKEND
-      : "")
+    ""
   )
 }
 
@@ -167,6 +174,7 @@ async function debugMiddleware(request: NextRequest) {
       keyLength: PUBLISHABLE_API_KEY ? PUBLISHABLE_API_KEY.length : 0,
       backendUrlResolved: base || null,
       kubernetes: !!process.env.KUBERNETES_SERVICE_HOST,
+      medusaBackendUrlEnv: process.env.MEDUSA_BACKEND_URL ?? null,
       fetchStatus,
       fetchMessage,
     },
