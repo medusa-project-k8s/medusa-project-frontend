@@ -6,6 +6,7 @@ import {
   PopoverPanel,
   Transition,
 } from "@headlessui/react"
+import { XMark } from "@medusajs/icons"
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
 import { Button } from "@medusajs/ui"
@@ -98,6 +99,7 @@ const CartDropdown = ({
           leaveFrom="opacity-100 translate-y-0"
           leaveTo="opacity-0 translate-y-1"
         >
+          {/* Desktop dropdown */}
           <PopoverPanel
             static
             className="hidden small:block absolute top-[calc(100%+1px)] right-0 bg-brand-primary border border-brand-accent/20 w-[420px] shadow-lg"
@@ -205,6 +207,141 @@ const CartDropdown = ({
               </>
             ) : (
               <div>
+                <div className="flex py-16 flex-col gap-y-4 items-center justify-center">
+                  <span className="text-brand-accent-dark text-small-regular">Your shopping bag is empty.</span>
+                  <div>
+                    <LocalizedClientLink href="/store">
+                      <>
+                        <span className="sr-only">Go to all products page</span>
+                        <Button 
+                          onClick={close}
+                          className="bg-brand-accent-dark hover:bg-brand-accent text-white"
+                        >
+                          Explore products
+                        </Button>
+                      </>
+                    </LocalizedClientLink>
+                  </div>
+                </div>
+              </div>
+            )}
+          </PopoverPanel>
+
+          {/* Mobile drawer */}
+          <PopoverPanel
+            static
+            className="small:hidden fixed inset-0 top-16 z-[60] bg-brand-primary overflow-y-auto"
+            data-testid="nav-cart-dropdown-mobile"
+          >
+            <div className="p-4 flex items-center justify-between border-b border-brand-accent/20 sticky top-0 bg-brand-primary">
+              <h3 className="text-large-semi text-brand-accent-dark tracking-wide">Cart</h3>
+              <button
+                onClick={close}
+                className="text-brand-accent-dark hover:opacity-70"
+                aria-label="Close cart"
+              >
+                <XMark className="w-6 h-6" />
+              </button>
+            </div>
+            {cartState && cartState.items?.length ? (
+              <div className="p-4">
+                <div className="grid grid-cols-1 gap-y-6">
+                  {cartState.items
+                    .sort((a, b) => {
+                      return (a.created_at ?? "") > (b.created_at ?? "")
+                        ? -1
+                        : 1
+                    })
+                    .map((item) => (
+                      <div
+                        className="grid grid-cols-[100px_1fr] gap-x-4"
+                        key={item.id}
+                        data-testid="cart-item"
+                      >
+                        <LocalizedClientLink
+                          href={`/products/${item.product_handle}`}
+                          className="w-full"
+                        >
+                          <Thumbnail
+                            thumbnail={item.thumbnail}
+                            images={item.variant?.product?.images}
+                            size="square"
+                          />
+                        </LocalizedClientLink>
+                        <div className="flex flex-col justify-between flex-1">
+                          <div className="flex flex-col flex-1">
+                            <div className="flex items-start justify-between">
+                              <div className="flex flex-col overflow-ellipsis whitespace-nowrap mr-4">
+                                <h3 className="text-base-regular overflow-hidden text-ellipsis">
+                                  <LocalizedClientLink
+                                    href={`/products/${item.product_handle}`}
+                                    data-testid="product-link"
+                                  >
+                                    {item.title}
+                                  </LocalizedClientLink>
+                                </h3>
+                                <LineItemOptions
+                                  variant={item.variant}
+                                  data-testid="cart-item-variant"
+                                  data-value={item.variant}
+                                />
+                                <span
+                                  data-testid="cart-item-quantity"
+                                  data-value={item.quantity}
+                                >
+                                  Quantity: {item.quantity}
+                                </span>
+                              </div>
+                              <div className="flex justify-end">
+                                <LineItemPrice
+                                  item={item}
+                                  style="tight"
+                                  currencyCode={cartState.currency_code}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <DeleteButton
+                            id={item.id}
+                            className="mt-2"
+                            data-testid="cart-item-remove-button"
+                          >
+                            Remove
+                          </DeleteButton>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+                <div className="mt-6 flex flex-col gap-y-4 text-small-regular border-t border-brand-accent/20 pt-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-brand-accent-dark font-semibold">
+                      Subtotal{" "}
+                      <span className="font-normal">(excl. taxes)</span>
+                    </span>
+                    <span
+                      className="text-large-semi text-brand-accent-dark"
+                      data-testid="cart-subtotal"
+                      data-value={subtotal}
+                    >
+                      {convertToLocale({
+                        amount: subtotal,
+                        currency_code: cartState.currency_code,
+                      })}
+                    </span>
+                  </div>
+                  <LocalizedClientLink href="/cart" passHref prefetch={false}>
+                    <Button
+                      className="w-full bg-brand-accent-dark hover:bg-brand-accent text-white"
+                      size="large"
+                      data-testid="go-to-cart-button"
+                    >
+                      Go to cart
+                    </Button>
+                  </LocalizedClientLink>
+                </div>
+              </div>
+            ) : (
+              <div className="p-4">
                 <div className="flex py-16 flex-col gap-y-4 items-center justify-center">
                   <span className="text-brand-accent-dark text-small-regular">Your shopping bag is empty.</span>
                   <div>

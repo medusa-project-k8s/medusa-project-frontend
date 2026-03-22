@@ -13,6 +13,11 @@ const SideMenuItems = {
   Cart: "/cart",
 }
 
+const SideMenuAuthItems = {
+  SignIn: "/account",
+  Register: "/account",
+}
+
 const SideMenu = () => {
 
   return (
@@ -67,7 +72,7 @@ const SideMenu = () => {
                     className="flex flex-col items-center justify-center relative z-10"
                   >
                     {/* Menu items - centered */}
-                    <ul className="flex flex-col items-center justify-center gap-8 mb-12">
+                    <ul className="flex flex-col items-center justify-center gap-8 mb-8">
                       {Object.entries(SideMenuItems).map(([name, href]) => {
                         return (
                           <li key={name} className="text-center">
@@ -84,6 +89,18 @@ const SideMenu = () => {
                         )
                       })}
                     </ul>
+
+                    {/* Auth links - smaller, separated */}
+                    <div className="flex flex-col items-center gap-4 mb-12">
+                      <LocalizedClientLink
+                        href="/account"
+                        className="text-base-regular text-white hover:opacity-80 transition-all"
+                        onClick={close}
+                        data-testid="mobile-account-link"
+                      >
+                        Sign in / Register
+                      </LocalizedClientLink>
+                    </div>
 
                     {/* Footer - only copyright */}
                     <Text className="text-xs text-white text-center">

@@ -17,18 +17,17 @@ const Register = ({ setCurrentView }: Props) => {
 
   return (
     <div
-      className="max-w-sm flex flex-col items-center"
+      className="w-full max-w-sm flex flex-col items-center px-4"
       data-testid="register-page"
     >
-      <h1 className="text-large-semi uppercase mb-6">
-        Become a Medusa Store Member
+      <h1 className="text-large-semi uppercase mb-4 text-center">
+        Become a Member
       </h1>
-      <p className="text-center text-base-regular text-ui-fg-base mb-4">
-        Create your Medusa Store Member profile, and get access to an enhanced
-        shopping experience.
+      <p className="text-center text-base-regular text-ui-fg-base mb-6 px-2">
+        Create your profile and get access to an enhanced shopping experience.
       </p>
       <form className="w-full flex flex-col" action={formAction}>
-        <div className="flex flex-col w-full gap-y-2">
+        <div className="flex flex-col w-full gap-y-3">
           <Input
             label="First name"
             name="first_name"
@@ -68,8 +67,11 @@ const Register = ({ setCurrentView }: Props) => {
           />
         </div>
         <ErrorMessage error={message} data-testid="register-error" />
-        <span className="text-center text-ui-fg-base text-small-regular mt-6">
-          By creating an account, you agree to Medusa Store&apos;s{" "}
+        <SubmitButton className="w-full mt-6" data-testid="register-button">
+          Join
+        </SubmitButton>
+        <p className="text-center text-ui-fg-base text-small-regular mt-4 px-2">
+          By creating an account, you agree to our{" "}
           <LocalizedClientLink
             href="/content/privacy-policy"
             className="underline"
@@ -84,10 +86,7 @@ const Register = ({ setCurrentView }: Props) => {
             Terms of Use
           </LocalizedClientLink>
           .
-        </span>
-        <SubmitButton className="w-full mt-6" data-testid="register-button">
-          Join
-        </SubmitButton>
+        </p>
       </form>
       <span className="text-center text-ui-fg-base text-small-regular mt-6">
         Already a member?{" "}

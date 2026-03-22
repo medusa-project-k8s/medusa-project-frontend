@@ -14,15 +14,15 @@ const Login = ({ setCurrentView }: Props) => {
 
   return (
     <div
-      className="max-w-sm w-full flex flex-col items-center"
+      className="w-full max-w-sm flex flex-col items-center px-4"
       data-testid="login-page"
     >
-      <h1 className="text-large-semi uppercase mb-6">Welcome back</h1>
-      <p className="text-center text-base-regular text-ui-fg-base mb-8">
+      <h1 className="text-large-semi uppercase mb-4 text-center">Welcome back</h1>
+      <p className="text-center text-base-regular text-ui-fg-base mb-6 px-2">
         Sign in to access an enhanced shopping experience.
       </p>
       <form className="w-full" action={formAction}>
-        <div className="flex flex-col w-full gap-y-2">
+        <div className="flex flex-col w-full gap-y-3">
           <Input
             label="Email"
             name="email"

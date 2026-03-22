@@ -24,7 +24,7 @@ const Hero = () => {
   }, [backgroundImages.length])
 
   return (
-    <div className="h-screen w-full border-b border-brand-accent/20 relative overflow-hidden">
+    <div className="h-[80vh] small:h-screen w-full border-b border-brand-accent/20 relative overflow-hidden">
       {/* Background images with fade transition */}
       {backgroundImages.map((image, index) => (
         <div
@@ -40,12 +40,12 @@ const Hero = () => {
 
       {/* Image indicators (dots) */}
       {backgroundImages.length > 1 && (
-        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
+        <div className="absolute bottom-4 small:bottom-6 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
           {backgroundImages.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentImageIndex(index)}
-              className={`h-2 rounded-full transition-all ${
+              className={`h-2 rounded-full transition-all touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center ${
                 index === currentImageIndex
                   ? "w-8 bg-white"
                   : "w-2 bg-white/50 hover:bg-white/75"
