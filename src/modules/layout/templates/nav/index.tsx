@@ -26,7 +26,12 @@ export default async function Nav() {
               className="flex items-center hover:opacity-80 transition-opacity"
               data-testid="nav-store-link"
             >
-              <div className="text-2xl font-bold text-brand-accent-dark tracking-wide">
+              {/* Mobile: Gradient text with shadow */}
+              <div className="small:hidden text-2xl font-bold tracking-wide bg-gradient-to-r from-brand-accent-dark via-brand-accent to-brand-accent-dark bg-clip-text text-transparent drop-shadow-sm">
+                PERSEPHONE
+              </div>
+              {/* Desktop: Original solid color */}
+              <div className="hidden small:block text-2xl font-bold text-brand-accent-dark tracking-wide">
                 PERSEPHONE BRAND
               </div>
             </LocalizedClientLink>
